@@ -18,7 +18,7 @@ int generatedNumbers[NUM_KEYS];
 int userInput[NUM_KEYS];
 int inputIndex = 0;
 
-enum State {IDLE, GENERATE, USER_INPUT, CHECK, WAIT};
+enum State {IDLE, GENERATE, USER_INPUT, CHECK, WAIT, REPEAT};
 State currentState = IDLE;
 
 void setup() {
@@ -70,8 +70,18 @@ void loop() {
       if (digitalRead(NEXT) == LOW) {
         currentState = GENERATE;
       } else if (digitalRead(BACK) == LOW) {
-        currentState = USER_INPUT;
+        currentState = REPEAT;
       }
+      break;
+    case REPEAT:
+      displayNumbers();
+      delay(3000);
+      lcd.clear();
+      lcd.print("Input numbers:");
+      lcd.setCursor(0, 2);
+      lcd.print("Press BACK to delete");
+      inputIndex = 0;
+      currentState = USER_INPUT;
       break;
   }
   if (digitalRead(END) == LOW) {
@@ -129,13 +139,16 @@ void checkUserInput() {
       break;
     }
   }
+  lcd.clear();
   if (isCorrect) {
     lcd.print("Good job!");
-    lcd.setCursor(0, 2);
-    lcd.print("NEXT to try again");
+    lcd.setCursor(0, 1);
+    lcd.print("NEXT to try new");
   } else {
     lcd.print("Please try again!");
-    lcd.setCursor(0, 2);
+    lcd.setCursor(0, 1);
     lcd.print("NEXT to try new");
+    lcd.setCursor(0, 2);
+    lcd.print("BACK to try again");
   }
 }
